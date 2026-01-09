@@ -1,0 +1,13 @@
+{
+  "background_color": "#403f3f",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Rapport Cctv",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "CctvR",
+  "start_url": "/",
+  "theme_color": "#0388f9",
+  "id": "/app-pour-cctv/",
+  "description": "app pour opperateur cctv"
+}
