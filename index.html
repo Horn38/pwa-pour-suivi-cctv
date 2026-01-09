@@ -787,13 +787,13 @@
 
     	loadData();
 	</script>
-    </script>
+
+<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js');  // ou le nom exact du fichier que tu as uploadé
+      navigator.serviceWorker.register('/pwabuilder-sw.js');  // ou le nom exact du fichier que tu as uploadé
     });
   }
 </script>
-
 </body>
 </html>
