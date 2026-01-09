@@ -1,54 +1,53 @@
-// This is the service worker with the combined offline experience (Offline page + Offline copy of pages)
+// sw.js - Service Worker basique pour offline + cache de l'app
 
-// Le nom du cache a été modifié pour être unique à ton app
-const CACHE = "rapport-cctv-offline";
+const CACHE_NAME = 'rapport-cctv-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  // Ajoute tes icônes ici si tu veux qu'elles soient cachées aussi
+  '/android-launchericon-192-192.png',
+  '/android-launchericon-512-512.png'
+];
 
-// Import du script Workbox (inchangé)
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
-
-// Remplace par 'index.html' car ton app est une SPA et peut fonctionner offline avec localStorage
-const offlineFallbackPage = "index.html";
-
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
-
-self.addEventListener('install', async (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => cache.add(offlineFallbackPage))
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('Cache ouvert');
+        return cache.addAll(urlsToCache);
+      })
   );
 });
 
-if (workbox.navigationPreload.isSupported()) {
-  workbox.navigationPreload.enable();
-}
-
-workbox.routing.registerRoute(
-  new RegExp('/*'),
-  new workbox.strategies.StaleWhileRevalidate({
-    cacheName: CACHE
-  })
-);
-
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const preloadResp = await event.preloadResponse;
-        if (preloadResp) {
-          return preloadResp;
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // Si dans le cache → on retourne ça (super rapide + offline)
+        if (response) {
+          return response;
         }
-        const networkResp = await fetch(event.request);
-        return networkResp;
-      } catch (error) {
+        // Sinon → on va chercher sur le réseau
+        return fetch(event.request).catch(() => {
+          // Si pas de réseau → on retourne la page principale comme fallback
+          return caches.match('/index.html');
+        });
+      })
+  );
+});
 
-        const cache = await caches.open(CACHE);
-        const cachedResp = await cache.match(offlineFallbackPage);
-        return cachedResp;
-      }
-    })());
-  }
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
 });
