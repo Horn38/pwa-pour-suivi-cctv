@@ -1,6 +1,6 @@
 {
-  "name": "Rapport Cctv",
-  "short_name": "CctvR",
+  "name": "Rapport CCTV",
+  "short_name": "CCTV",
   "description": "Application pour opérateur CCTV - Rapport de bouchonnage et perçage",
   "start_url": "/",
   "scope": "/",
@@ -9,10 +9,12 @@
   "background_color": "#4E4D40",
   "theme_color": "#074BF0",
   "dir": "ltr",
+  "lang": "fr",
   "id": "/app-pour-operateur-cctv/",
   "categories": [
     "business",
-    "productivity"
+    "productivity",
+    "utilities"
   ],
   "icons": [
     {
