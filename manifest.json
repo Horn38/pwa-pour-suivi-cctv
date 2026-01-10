@@ -2,15 +2,15 @@
   "name": "Rapport CCTV",
   "short_name": "CCTV",
   "description": "Application pour opérateur CCTV - Rapport de bouchonnage et perçage",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/pwa-pour-suivi-cctv/",
+  "scope": "/pwa-pour-suivi-cctv/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#4E4D40",
   "theme_color": "#074BF0",
   "dir": "ltr",
   "lang": "fr",
-  "id": "/app-pour-operateur-cctv/",
+  "id": "/pwa-pour-suivi-cctv/app-pour-operateur-cctv/",
   "categories": [
     "business",
     "productivity",
@@ -55,3 +55,5 @@
     }
   ]
 }
+	
+
