@@ -4,16 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rapport Bouchonnage</title>
-    <!-- Ajout du lien vers le manifest.json pour activer les fonctionnalités PWA -->
-    <link rel="manifest" href="manifest.json">
-    <!-- Ajout de la meta pour la couleur du thème (correspond à celle dans le manifest) -->
+
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="/pwa-pour-suivi-cctv/manifest.json">
+
+    <!-- Couleur thème (barre adresse/status bar) -->
     <meta name="theme-color" content="#074BF0">
-    <!-- Pour iOS : Ajout des meta tags pour les icônes (utilise les icônes générées par PWABuilder) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Rapport Cctv">
-    <link rel="apple-touch-icon" href="ios/AppleIcon-180.png"> <!-- Exemple : ajuste avec le nom exact de ton icône iOS principale -->
-    <!-- Style reste inchangé -->
+
+    <!-- iOS : icône et titre -->
+    <meta name="apple-mobile-web-app-title" content="Rapport CCTV">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/pwa-pour-suivi-cctv/android-launchericon-180-180.png"> <!-- Ajuste si tu as une icône 180px -->
+    <!-- Optionnel : splash screen iOS -->
+    <link rel="apple-touch-startup-image" href="/pwa-pour-suivi-cctv/splash.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+
+    <!-- Style inchangé -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -797,15 +802,20 @@
 
         loadData();
 
-        // Ajout du code pour enregistrer le Service Worker (à placer à la fin du script pour que le DOM soit chargé)
+        // Enregistrement du Service Worker avec scope explicite (ESSENTIEL pour subpath GitHub Pages)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
+                const swScope = '/pwa-pour-suivi-cctv/';
+                navigator.serviceWorker.register('/pwa-pour-suivi-cctv/sw.js', { scope: swScope })
                     .then(registration => {
-                        console.log('Service Worker enregistré avec succès:', registration.scope);
+                        console.log('Service Worker enregistré avec succès ! Scope:', registration.scope);
+                        // Gestion mise à jour automatique
+                        registration.addEventListener('updatefound', () => {
+                            console.log('Nouvelle version du Service Worker détectée');
+                        });
                     })
                     .catch(error => {
-                        console.log('Échec de l\'enregistrement du Service Worker:', error);
+                        console.error('Échec de l\'enregistrement du Service Worker:', error);
                     });
             });
         }
