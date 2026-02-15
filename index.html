@@ -48,14 +48,7 @@
             background: rgba(0, 0, 0, 0.70);
         }
 
-        .gabou-mode {
-            background: url('https://media.craiyon.com/2025-10-19/qOiYlt2bQImVLZ5o0HTYSQ.webp') no-repeat center center fixed !important;
-            background-size: cover !important;
-        }
 
-        .gabou-mode::before {
-            background: rgba(0, 80, 120, 0.55) !important;
-        }
 
         .dark-mode input, .dark-mode select, .dark-mode textarea {
             background: #333;
@@ -199,8 +192,7 @@
         }
         #saveBtn { background-color: #2196F3 !important; }
         #saveBtn:hover { background-color: #1976D2 !important; }
-        #driveBtn { background-color: #4285F4 !important; }
-        #driveBtn:hover { background-color: #3367D6 !important; }
+
         #loadBtn { background-color: #FF9800 !important; }
         #loadBtn:hover { background-color: #F57C00 !important; }
 
@@ -236,6 +228,231 @@
             margin-top: 30px;
         }
         .hidden { display: none; }
+        /* ======================== DOSSIER PHOTOS ======================== */
+        #photoFolderBtn { background-color: #3F51B5 !important; }
+        #photoFolderBtn:hover { background-color: #303F9F !important; }
+        .photo-overlay {
+            position: fixed; inset: 0; z-index: 9000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+            animation: photoFadeIn 0.25s ease;
+        }
+        .photo-overlay.photo-hidden { display: none !important; }
+        @keyframes photoFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .photo-folder-window {
+            width: 92vw; max-width: 900px; height: 80vh; max-height: 700px;
+            background: #1e1e2e; border-radius: 12px;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: photoSlideUp 0.3s ease;
+        }
+        body:not(.dark-mode) .photo-folder-window { background: #f0f0f0; }
+        @keyframes photoSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .photo-folder-titlebar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; background: #181825; border-bottom: 1px solid #313244; flex-shrink: 0;
+        }
+        body:not(.dark-mode) .photo-folder-titlebar { background: #e0e0e0; border-color: #ccc; }
+        .photo-folder-titlebar-left { display: flex; align-items: center; gap: 8px; }
+        .photo-folder-icon { font-size: 18px; }
+        .photo-folder-title { font-size: 14px; font-weight: 600; color: #cdd6f4; }
+        body:not(.dark-mode) .photo-folder-title { color: #333; }
+        .photo-folder-close {
+            background: none; border: none; color: #6c7086; font-size: 18px;
+            cursor: pointer; width: 32px; height: 32px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+        }
+        .photo-folder-close:hover { background: #e64553; color: #fff; }
+        .photo-folder-toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; background: #1e1e2e; border-bottom: 1px solid #313244; flex-shrink: 0;
+        }
+        body:not(.dark-mode) .photo-folder-toolbar { background: #f0f0f0; border-color: #ccc; }
+        .photo-import-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; font-size: 14px; font-weight: 600;
+            border: 2px dashed #45475a; border-radius: 8px; cursor: pointer;
+            background: transparent; color: #89b4fa; transition: all 0.2s;
+        }
+        body:not(.dark-mode) .photo-import-btn { border-color: #aaa; color: #3F51B5; }
+        .photo-import-btn:hover { border-color: #89b4fa; background: rgba(137,180,250,0.08); }
+        .photo-count { font-size: 13px; color: #6c7086; font-weight: 500; }
+        .photo-folder-grid {
+            flex: 1; overflow-y: auto; padding: 16px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px; align-content: start;
+        }
+        .photo-folder-grid::-webkit-scrollbar { width: 8px; }
+        .photo-folder-grid::-webkit-scrollbar-track { background: #11111b; }
+        .photo-folder-grid::-webkit-scrollbar-thumb { background: #45475a; border-radius: 4px; }
+        .photo-card {
+            background: #181825; border-radius: 10px; overflow: hidden;
+            border: 1px solid #313244; position: relative; transition: all 0.2s;
+        }
+        body:not(.dark-mode) .photo-card { background: #fff; border-color: #ddd; }
+        .photo-card:hover { border-color: #89b4fa; box-shadow: 0 4px 16px rgba(137,180,250,0.15); transform: translateY(-2px); }
+        .photo-card-img-wrap {
+            width: 100%; aspect-ratio: 1; overflow: hidden; cursor: pointer; background: #11111b;
+        }
+        body:not(.dark-mode) .photo-card-img-wrap { background: #e0e0e0; }
+        .photo-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .photo-card:hover .photo-card-img-wrap img { transform: scale(1.05); }
+        .photo-card-info { padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+        .photo-card-name { font-size: 12px; color: #cdd6f4; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        body:not(.dark-mode) .photo-card-name { color: #333; }
+        .photo-card-date { font-size: 11px; color: #6c7086; }
+        .photo-card-delete {
+            position: absolute; top: 6px; right: 6px;
+            background: rgba(17,17,27,0.8); border: none; border-radius: 6px;
+            width: 30px; height: 30px; cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .photo-card-rename {
+            position: absolute; top: 6px; right: 40px;
+            background: rgba(17,17,27,0.8); border: none; border-radius: 6px;
+            width: 30px; height: 30px; cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .photo-card:hover .photo-card-delete, .photo-card:hover .photo-card-rename { opacity: 1; }
+        .photo-card-delete:hover { background: #e64553; }
+        .photo-card-rename:hover { background: #3F51B5; }
+        .photo-empty-state { grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #6c7086; }
+        .photo-empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .photo-empty-state p { margin: 4px 0; }
+        .photo-empty-hint { font-size: 13px; color: #45475a; }
+        .photo-lightbox {
+            position: fixed; inset: 0; z-index: 9500;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .photo-lightbox.photo-hidden { display: none !important; }
+        .photo-lightbox-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.85); }
+        .photo-lightbox-content {
+            position: relative; max-width: 90vw; max-height: 90vh;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .photo-lightbox-content img {
+            max-width: 90vw; max-height: 80vh; object-fit: contain;
+            border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+        }
+        .photo-lightbox-info { display: flex; gap: 16px; margin-top: 10px; color: #a6adc8; font-size: 13px; }
+        .photo-lightbox-close {
+            position: absolute; top: -40px; right: 0; background: none;
+            border: none; color: #fff; font-size: 28px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;
+        }
+        .photo-lightbox-close:hover { opacity: 1; }
+        .photo-lightbox-prev, .photo-lightbox-next {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.1); border: none; color: #fff;
+            font-size: 36px; width: 50px; height: 50px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .photo-lightbox-prev { left: -60px; }
+        .photo-lightbox-next { right: -60px; }
+        .photo-lightbox-prev:hover, .photo-lightbox-next:hover { background: rgba(255,255,255,0.2); }
+        @media (max-width: 600px) {
+            .photo-folder-window { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; }
+            .photo-folder-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; padding: 10px; }
+            .photo-lightbox-prev { left: 5px; }
+            .photo-lightbox-next { right: 5px; }
+            .photo-lightbox-prev, .photo-lightbox-next { width: 40px; height: 40px; font-size: 28px; }
+        }
+        /* ======================== ANOMALIE DE GAINE ======================== */
+        #anomalyBtn { background-color: #E65100 !important; }
+        #anomalyBtn:hover { background-color: #BF360C !important; }
+        .anom-overlay { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); animation: photoFadeIn 0.25s ease; }
+        .anom-overlay.photo-hidden { display: none !important; }
+        .anom-window { width: 95vw; max-width: 950px; height: 85vh; max-height: 750px; background: #1e1e2e; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: photoSlideUp 0.3s ease; }
+        body:not(.dark-mode) .anom-window { background: #f0f0f0; }
+        .anom-titlebar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #181825; border-bottom: 1px solid #313244; flex-shrink: 0; }
+        body:not(.dark-mode) .anom-titlebar { background: #e0e0e0; border-color: #ccc; }
+        .anom-titlebar-left { display: flex; align-items: center; gap: 8px; }
+        .anom-title { font-size: 14px; font-weight: 600; color: #cdd6f4; }
+        body:not(.dark-mode) .anom-title { color: #333; }
+        .anom-close { background: none; border: none; color: #6c7086; font-size: 18px; cursor: pointer; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .anom-close:hover { background: #e64553; color: #fff; }
+        .anom-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #1e1e2e; border-bottom: 1px solid #313244; flex-shrink: 0; }
+        body:not(.dark-mode) .anom-toolbar { background: #f0f0f0; border-color: #ccc; }
+        .anom-add-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 14px; font-weight: 600; border: 2px dashed #45475a; border-radius: 8px; cursor: pointer; background: transparent; color: #fab387; transition: all 0.2s; }
+        body:not(.dark-mode) .anom-add-btn { border-color: #aaa; color: #E65100; }
+        .anom-add-btn:hover { border-color: #fab387; background: rgba(250,179,135,0.08); }
+        .anom-count { font-size: 13px; color: #6c7086; font-weight: 500; }
+        .anom-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .anom-list::-webkit-scrollbar { width: 8px; }
+        .anom-list::-webkit-scrollbar-thumb { background: #45475a; border-radius: 4px; }
+        .anom-card { background: #181825; border: 1px solid #313244; border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; display: flex; gap: 12px; align-items: center; }
+        body:not(.dark-mode) .anom-card { background: #fff; border-color: #ddd; }
+        .anom-card:hover { border-color: #fab387; box-shadow: 0 4px 16px rgba(250,179,135,0.12); transform: translateY(-1px); }
+        .anom-card-thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #11111b; flex-shrink: 0; cursor: pointer; }
+        body:not(.dark-mode) .anom-card-thumb { background: #e0e0e0; }
+        /* Anomaly lightbox */
+        .anom-lightbox { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); animation: photoFadeIn 0.2s ease; }
+        .anom-lightbox.photo-hidden { display: none !important; }
+        .anom-lightbox img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+        .anom-lightbox-close { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 24px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .anom-lightbox-close:hover { background: #e64553; }
+        .anom-card-info { flex: 1; min-width: 0; }
+        .anom-card-line1 { font-size: 14px; font-weight: 600; color: #cdd6f4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        body:not(.dark-mode) .anom-card-line1 { color: #333; }
+        .anom-card-line2 { font-size: 12px; color: #6c7086; margin-top: 2px; }
+        .anom-card-delete { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; padding: 4px; }
+        .anom-card-delete:hover { opacity: 1; }
+        .anom-empty { text-align: center; padding: 40px; color: #6c7086; }
+        .anom-empty-icon { font-size: 48px; margin-bottom: 12px; }
+        /* Detail view */
+        .anom-detail { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .anom-detail label { font-size: 13px; font-weight: 600; color: #a6adc8; margin-bottom: 2px; display: block; }
+        body:not(.dark-mode) .anom-detail label { color: #555; }
+        .anom-detail input[type="text"], .anom-detail input[type="date"], .anom-detail textarea {
+            width: 100%; padding: 10px; font-size: 15px; border: 1px solid #45475a; border-radius: 8px;
+            background: #313244; color: #cdd6f4; box-sizing: border-box;
+        }
+        body:not(.dark-mode) .anom-detail input[type="text"], body:not(.dark-mode) .anom-detail input[type="date"], body:not(.dark-mode) .anom-detail textarea {
+            background: #fff; color: #333; border-color: #ccc;
+        }
+        .anom-detail textarea { height: 80px; resize: vertical; font-family: Arial, sans-serif; }
+        .anom-detail-photo-wrap { width: 100%; min-height: 120px; max-height: 300px; border-radius: 10px; overflow: hidden; background: #11111b; text-align: center; position: relative; display: flex; align-items: center; justify-content: center; }
+        .anom-detail-photo-wrap.has-photo { cursor: pointer; }
+        .anom-detail-photo-wrap.has-photo:hover { opacity: 0.85; }
+        body:not(.dark-mode) .anom-detail-photo-wrap { background: #e0e0e0; }
+        .anom-detail-photo-wrap img { max-width: 100%; max-height: 300px; object-fit: contain; display: block; }
+        .anom-detail-photo-placeholder { padding: 30px; color: #6c7086; font-size: 48px; }
+        .anom-photo-import-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 14px; font-weight: 600; border: 2px dashed #45475a; border-radius: 8px; cursor: pointer; background: transparent; color: #89b4fa; }
+        .anom-photo-import-btn:hover { border-color: #89b4fa; background: rgba(137,180,250,0.08); }
+        .anom-detail-row { display: flex; gap: 12px; }
+        .anom-detail-row > div { flex: 1; }
+        .anom-detail-actions { display: flex; gap: 10px; justify-content: center; padding: 12px 0; flex-shrink: 0; border-top: 1px solid #313244; }
+        body:not(.dark-mode) .anom-detail-actions { border-color: #ccc; }
+        .anom-save-btn { padding: 10px 30px; font-size: 15px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; background: #4CAF50; color: white; }
+        .anom-save-btn:hover { background: #45a049; }
+        .anom-back-btn { padding: 10px 20px; font-size: 15px; border: none; border-radius: 8px; cursor: pointer; background: #45475a; color: #cdd6f4; }
+        body:not(.dark-mode) .anom-back-btn { background: #e0e0e0; color: #333; }
+        .anom-back-btn:hover { background: #585b70; }
+        #exportPdfBtn { background-color: #4CAF50 !important; }
+        #exportPdfBtn:hover { background-color: #388E3C !important; }
+
+        @media print {
+            @page { size: landscape; }
+            body, .dark-mode { background: #fff !important; color: #222 !important; }
+            body::before { display: none !important; }
+            .top-buttons, #btnAddLine, #deleteBtn, #resetBtn, #saveBtn, #loadBtn,
+            #photoFolderBtn, #anomalyBtn, #exportPdfBtn,
+            .photo-overlay, .anom-overlay, #loadInput,
+            h1 { display: none !important; }
+            input[type="text"], input[type="number"], input[type="date"], textarea, select {
+                border: none !important; background: transparent !important;
+                color: #222 !important; box-shadow: none !important; outline: none !important;
+            }
+            table { font-size: 11px !important; page-break-inside: auto; }
+            tr { page-break-inside: avoid; }
+            th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { margin: 10px !important; }
+        }
+
+        @media (max-width: 600px) {
+            .anom-window { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; }
+            .anom-detail-row { flex-direction: column; gap: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -313,8 +530,8 @@
                 <th id="thType">Type de service</th>
                 <th id="thAdresse">Adresse</th>
                 <th id="thPosition">Position</th>
-                <th id="thBouchon">Bouchon</th>
                 <th id="thEstimation">Estimation</th>
+                <th id="thBouchon">Bouchon</th>
                 <th id="thPercage">Perçage</th>
                 <th id="thCommentaires">Commentaires</th>
             </tr>
@@ -337,8 +554,10 @@
         <button id="deleteBtn" onclick="effacerDerniereLigne()">Effacer la dernière ligne</button>
         <button id="resetBtn" onclick="reinitialiserTout()">Réinitialiser tout</button>
         <button id="saveBtn">Sauvegarder le projet</button>
-        <button id="driveBtn">Envoyer sur Drive</button>
         <button id="loadBtn">Ouvrir un projet</button>
+        <button id="photoFolderBtn">📁 Dossier Photos</button>
+        <button id="anomalyBtn">⚠️ Anomalie de gaine</button>
+        <button id="exportPdfBtn" onclick="window.print()">Exporter en PDF</button>
     </div>
 
     <div class="notes-section">
@@ -347,25 +566,135 @@
     </div>
 
     <input type="file" id="fileInput" accept=".json" class="hidden">
+    <input type="file" id="photoFileInput" accept="image/*" multiple class="hidden">
+    <input type="file" id="anomPhotoInput" accept="image/*" class="hidden">
+
+    <!-- Anomalie de gaine overlay -->
+    <div id="anomOverlay" class="anom-overlay photo-hidden">
+        <div class="anom-window">
+            <div class="anom-titlebar">
+                <div class="anom-titlebar-left">
+                    <span>⚠️</span>
+                    <span class="anom-title" id="anomTitle">Anomalies de gaine — <span id="anomProjectName">Projet</span></span>
+                </div>
+                <button class="anom-close" id="anomCloseBtn">✕</button>
+            </div>
+            <!-- LIST VIEW -->
+            <div id="anomListView">
+                <div class="anom-toolbar">
+                    <button class="anom-add-btn" id="anomAddBtn">
+                        <span>➕</span> <span id="anomAddLabel">Nouvelle anomalie</span>
+                    </button>
+                    <span class="anom-count" id="anomCount">0 anomalie(s)</span>
+                </div>
+                <div class="anom-list" id="anomList">
+                    <div class="anom-empty" id="anomEmpty">
+                        <div class="anom-empty-icon">⚠️</div>
+                        <p id="anomEmptyText">Aucune anomalie enregistrée</p>
+                    </div>
+                </div>
+            </div>
+            <!-- DETAIL VIEW -->
+            <div id="anomDetailView" class="photo-hidden" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+                <div class="anom-detail" id="anomDetail">
+                    <div class="anom-detail-photo-wrap" id="anomPhotoWrap">
+                        <div class="anom-detail-photo-placeholder" id="anomPhotoPlaceholder">📷</div>
+                    </div>
+                    <button class="anom-photo-import-btn" id="anomPhotoImportBtn">
+                        <span>📷</span> <span id="anomPhotoImportLabel">Ajouter / Remplacer photo</span>
+                    </button>
+                    <div class="anom-detail-row">
+                        <div>
+                            <label id="anomLabelPuits">Numéro de puits</label>
+                            <input type="text" id="anomPuits">
+                        </div>
+                        <div>
+                            <label id="anomLabelChainage">Chaînage</label>
+                            <input type="text" id="anomChainage">
+                        </div>
+                    </div>
+                    <div class="anom-detail-row">
+                        <div>
+                            <label id="anomLabelChainageGaine">Chaînage gaine</label>
+                            <input type="text" id="anomChainageGaine">
+                        </div>
+                        <div>
+                            <label id="anomLabelSerie"># de série</label>
+                            <input type="text" id="anomSerie">
+                        </div>
+                    </div>
+                    <div>
+                        <label id="anomLabelDate">Date</label>
+                        <input type="date" id="anomDate">
+                    </div>
+                    <div>
+                        <label id="anomLabelNotes">Notes / Description</label>
+                        <textarea id="anomNotes"></textarea>
+                    </div>
+                </div>
+                <div class="anom-detail-actions">
+                    <button class="anom-back-btn" id="anomBackBtn">← <span id="anomBackLabel">Retour</span></button>
+                    <button class="anom-save-btn" id="anomSaveDetailBtn">💾 <span id="anomSaveLabel">Sauvegarder</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomaly Lightbox -->
+    <div id="anomLightbox" class="anom-lightbox photo-hidden">
+        <img id="anomLightboxImg" src="">
+        <button class="anom-lightbox-close" id="anomLightboxClose">✕</button>
+    </div>
+
+    <!-- Overlay Dossier Photos -->
+    <div id="photoFolderOverlay" class="photo-overlay photo-hidden">
+        <div class="photo-folder-window">
+            <div class="photo-folder-titlebar">
+                <div class="photo-folder-titlebar-left">
+                    <span class="photo-folder-icon">📁</span>
+                    <span class="photo-folder-title">Dossier Photos — <span id="photoFolderProjectName">Projet</span></span>
+                </div>
+                <button class="photo-folder-close" id="photoFolderCloseBtn" title="Fermer">✕</button>
+            </div>
+            <div class="photo-folder-toolbar">
+                <button class="photo-import-btn" id="photoImportBtn">
+                    <span>📷</span> Importer photo(s)
+                </button>
+                <span class="photo-count" id="photoCount">0 photo(s)</span>
+            </div>
+            <div class="photo-folder-grid" id="photoFolderGrid">
+                <div class="photo-empty-state" id="photoEmptyState">
+                    <div class="photo-empty-icon">🖼️</div>
+                    <p>Aucune photo dans ce dossier</p>
+                    <p class="photo-empty-hint">Cliquez sur "Importer photo(s)" pour ajouter des images</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="photoLightbox" class="photo-lightbox photo-hidden">
+        <div class="photo-lightbox-backdrop" id="photoLightboxBackdrop"></div>
+        <div class="photo-lightbox-content">
+            <img id="photoLightboxImg" src="" alt="Photo agrandie" />
+            <div class="photo-lightbox-info">
+                <span id="photoLightboxName"></span>
+                <span id="photoLightboxDate"></span>
+            </div>
+            <button class="photo-lightbox-close" id="photoLightboxClose">✕</button>
+            <button class="photo-lightbox-prev" id="photoLightboxPrev">‹</button>
+            <button class="photo-lightbox-next" id="photoLightboxNext">›</button>
+        </div>
+    </div>
 
     <script>
         let diametreChoisi = '';
         let isFrench = true;
         let currentHighlight = '';
 
-        function checkGabouMode() {
-            const operateur = document.getElementById('operateur').value.trim();
-            if (operateur.toLowerCase() === 'gabou') {
-                document.body.classList.add('gabou-mode');
-            } else {
-                document.body.classList.remove('gabou-mode');
-            }
-        }
-
         function autoSave() {
             const data = getCurrentData();
             localStorage.setItem('rapportBouchonnageData', JSON.stringify(data));
-            checkGabouMode();
         }
 
         function getCurrentData() {
@@ -378,8 +707,8 @@
                     typeService: selects[0].value,
                     adresse: inputs[1].value,
                     position: selects[1].value,
-                    bouchon: selects[2].value,
-                    estimation: selects[3].value,
+                    estimation: selects[2].value,
+                    bouchon: selects[3].value,
                     percage: selects[4].value,
                     commentaires: inputs[2].value,
                     className: row.className
@@ -387,6 +716,7 @@
             });
 
             return {
+                appId: 'rapport-cctv',
                 projet: document.getElementById('projet').value,
                 date: document.getElementById('date').value,
                 ville: document.getElementById('ville').value,
@@ -434,8 +764,8 @@
                 selects[0].value = rowData.typeService || '';
                 inputs[1].value = rowData.adresse || '';
                 selects[1].value = rowData.position || '';
-                selects[2].value = rowData.bouchon || '';
-                selects[3].value = rowData.estimation || '';
+                selects[2].value = rowData.estimation || '';
+                selects[3].value = rowData.bouchon || '';
                 selects[4].value = rowData.percage || '';
                 inputs[2].value = rowData.commentaires || '';
                 row.className = rowData.className || '';
@@ -444,8 +774,6 @@
             });
 
             if (tbody.children.length === 0) ajouterLigne();
-
-            checkGabouMode();
         }
 
         function loadData() {
@@ -454,19 +782,43 @@
                 loadFromData(JSON.parse(saved));
             } else {
                 ajouterLigne();
-                checkGabouMode();
             }
         }
 
-        document.getElementById('operateur').addEventListener('input', checkGabouMode);
-        document.getElementById('operateur').addEventListener('change', checkGabouMode);
-
-        document.getElementById('saveBtn').onclick = () => {
-            const defaultName = (document.getElementById('projet').value || 'rapport_bouchonnage').replace(/[^a-zA-Z0-9_-]/g, '_');
+        document.getElementById('saveBtn').onclick = async () => {
+            let defaultName = 'CCTV_';
+            const projet = document.getElementById('projet').value.trim();
+            const rue = document.getElementById('rue').value.trim();
+            const puitsDebut = document.getElementById('puitsDebut').value.trim();
+            const puitsFin = document.getElementById('puitsFin').value.trim();
+            const parts = [];
+            if (projet) parts.push(projet.replace(/[^a-zA-Z0-9àâäéèêëïîôùûüç_-]/gi, '_'));
+            if (rue) parts.push(rue.replace(/[^a-zA-Z0-9àâäéèêëïîôùûüç_-]/gi, '_'));
+            if (puitsDebut || puitsFin) {
+                let puits = puitsDebut.replace(/[^a-zA-Z0-9àâäéèêëïîôùûüç_-]/gi, '_');
+                if (puitsFin) puits += '@' + puitsFin.replace(/[^a-zA-Z0-9àâäéèêëïîôùûüç_-]/gi, '_');
+                parts.push(puits);
+            }
+            defaultName += parts.length > 0 ? parts.join('_') : 'rapport_bouchonnage';
             const filename = prompt(isFrench ? "Nom du fichier (sans extension) :" : "File name (without extension):", defaultName);
             if (!filename) return;
 
             const data = getCurrentData();
+
+            // Inclure les photos dans la sauvegarde
+            if (window.PhotoModule) {
+                const projName = window.PhotoModule.getProjectName();
+                const photos = await window.PhotoModule.getPhotosForProject(projName);
+                data.photos = photos.map(p => ({ fileName: p.fileName, dateAdded: p.dateAdded, dataUrl: p.dataUrl }));
+            }
+
+            // Inclure les anomalies dans la sauvegarde
+            if (window.AnomalyModule) {
+                const projName = window.AnomalyModule.getProjectName();
+                const anomalies = await window.AnomalyModule.getAnomaliesForProject(projName);
+                data.anomalies = anomalies.map(a => ({ puits: a.puits, chainage: a.chainage, chainageGaine: a.chainageGaine, serie: a.serie, date: a.date, notes: a.notes, photo: a.photo }));
+            }
+
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -477,34 +829,45 @@
             alert(isFrench ? "Projet sauvegardé !" : "Project saved!");
         };
 
-        document.getElementById('driveBtn').onclick = () => {
-            const defaultName = (document.getElementById('projet').value || 'rapport_bouchonnage').replace(/[^a-zA-Z0-9_-]/g, '_');
-
-            const data = getCurrentData();
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = defaultName + '.json';
-            a.click();
-
-            setTimeout(() => {
-                window.open('https://drive.google.com/drive/my-drive', '_blank');
-            }, 500);
-
-            alert(isFrench ? "Fichier sauvegardé localement. Ouvre Drive pour l'uploader." : "File saved locally. Open Drive to upload it.");
-        };
-
         document.getElementById('loadBtn').onclick = () => document.getElementById('fileInput').click();
 
         document.getElementById('fileInput').onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (ev) => {
+            reader.onload = async (ev) => {
                 try {
                     const data = JSON.parse(ev.target.result);
+
+                    // Vérifier que c'est un fichier Rapport CCTV
+                    if (data.appId && data.appId !== 'rapport-cctv') {
+                        alert(isFrench
+                            ? 'Ce fichier n\'est pas un projet Rapport CCTV. Veuillez ouvrir le bon fichier.'
+                            : 'This file is not a CCTV Report project. Please open the correct file.');
+                        return;
+                    }
+
                     loadFromData(data);
+
+                    // Réimporter les photos sauvegardées dans le JSON
+                    if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
+                        const projName = window.PhotoModule.getProjectName();
+                        // Effacer les anciennes photos du projet avant import
+                        await window.PhotoModule.deleteAllPhotosForProject(projName);
+                        for (const p of data.photos) {
+                            await window.PhotoModule.savePhotoToDB(projName, p.dataUrl, p.fileName, p.dateAdded);
+                        }
+                    }
+
+                    // Réimporter les anomalies sauvegardées dans le JSON
+                    if (window.AnomalyModule && Array.isArray(data.anomalies) && data.anomalies.length > 0) {
+                        const projName = window.AnomalyModule.getProjectName();
+                        await window.AnomalyModule.deleteAllAnomaliesForProject(projName);
+                        for (const a of data.anomalies) {
+                            await window.AnomalyModule.saveAnomaly({ project: projName, puits: a.puits, chainage: a.chainage, chainageGaine: a.chainageGaine, serie: a.serie, date: a.date, notes: a.notes, photo: a.photo });
+                        }
+                    }
+
                     alert(isFrench ? 'Projet chargé !' : 'Project loaded!');
                 } catch (err) {
                     alert(isFrench ? 'Fichier invalide.' : 'Invalid file.');
@@ -550,6 +913,7 @@
                 document.getElementById('resetBtn').textContent = 'Réinitialiser tout';
                 document.getElementById('highlightText').textContent = 'Surligner la ligne :';
                 document.getElementById('labelNotes').textContent = 'Notes :';
+                document.getElementById('exportPdfBtn').textContent = 'Exporter en PDF';
             } else {
                 document.getElementById('title').textContent = 'Plugging and Drilling Report';
                 document.getElementById('labelProjet').textContent = 'Project:';
@@ -576,8 +940,10 @@
                 document.getElementById('resetBtn').textContent = 'Reset all';
                 document.getElementById('highlightText').textContent = 'Highlight row:';
                 document.getElementById('labelNotes').textContent = 'Notes:';
+                document.getElementById('exportPdfBtn').textContent = 'Export to PDF';
             }
             autoSave();
+            if (window.updateAnomalyLabels) window.updateAnomalyLabels();
         }
 
         function toggleTheme() {
@@ -692,6 +1058,18 @@
                 return;
             }
 
+            // Effacer les photos du projet en cours avant de vider les champs
+            if (window.PhotoModule) {
+                const projName = window.PhotoModule.getProjectName();
+                window.PhotoModule.deleteAllPhotosForProject(projName);
+            }
+
+            // Effacer les anomalies du projet en cours
+            if (window.AnomalyModule) {
+                const projName = window.AnomalyModule.getProjectName();
+                window.AnomalyModule.deleteAllAnomaliesForProject(projName);
+            }
+
             document.getElementById('projet').value = '';
             document.getElementById('date').value = '';
             document.getElementById('ville').value = '';
@@ -714,7 +1092,6 @@
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
 
             localStorage.removeItem('rapportBouchonnageData');
-            checkGabouMode();
         }
 
         function appliquerTraitementSpecial(select) {
@@ -773,7 +1150,7 @@
             optionsPos += '<option>droite</option><option>gauche</option>';
             ligne.innerHTML += `<td><select>${optionsPos}</select></td>`;
 
-            const fractions = ['1/2', '5/8', '3/4', '7/8', '1', '1 1/4', '1 1/2', '1 5/8', '1 3/4', '1 7/8', '2'];
+            const fractions = ['1/2', '5/8', '3/4', '3/4+', '1', '1+', '1 1/4', '1 1/2', '1 5/8', '1 3/4', '1 7/8', '2'];
             let optionsFrac = '<option value="">Choisir...</option>';
             fractions.forEach(f => optionsFrac += `<option>${f}</option>`);
 
@@ -801,6 +1178,621 @@
         }
 
         loadData();
+
+        // ============================================================
+        // DOSSIER PHOTOS — IndexedDB + UI
+        // ============================================================
+        (function initPhotoModule() {
+            const DB_NAME = 'RapportBouchonnagePhotos';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'photos';
+
+            function openDB() {
+                return new Promise((resolve, reject) => {
+                    const req = indexedDB.open(DB_NAME, DB_VERSION);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        }
+                    };
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async function savePhotoToDB(projectName, dataUrl, fileName, dateAdded) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).add({ project: projectName, dataUrl, fileName, dateAdded });
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function getPhotosForProject(projectName) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const req = tx.objectStore(STORE_NAME).getAll();
+                    req.onsuccess = () => resolve(req.result.filter(p => p.project === projectName));
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async function deletePhotoFromDB(id) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).delete(id);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function renamePhotoInDB(id, newName) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.get(id);
+                    req.onsuccess = () => {
+                        const photo = req.result;
+                        if (photo) {
+                            photo.fileName = newName;
+                            store.put(photo);
+                        }
+                    };
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function deleteAllPhotosForProject(projectName) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        req.result.filter(p => p.project === projectName).forEach(p => store.delete(p.id));
+                    };
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            // Expose pour accès depuis reinitialiserTout()
+            window.PhotoModule = { deleteAllPhotosForProject, getProjectName, getPhotosForProject, savePhotoToDB };
+
+            function getProjectName() {
+                const p = document.getElementById('projet').value.trim();
+                const r = document.getElementById('rue').value.trim();
+                if (p) return p;
+                if (r) return r;
+                return 'Projet sans nom';
+            }
+
+            const overlay = document.getElementById('photoFolderOverlay');
+            const grid = document.getElementById('photoFolderGrid');
+            const emptyState = document.getElementById('photoEmptyState');
+            const countEl = document.getElementById('photoCount');
+            const fileInput = document.getElementById('photoFileInput');
+            let currentPhotos = [];
+            let currentLightboxIdx = 0;
+
+            // Open / Close
+            document.getElementById('photoFolderBtn').addEventListener('click', async () => {
+                document.getElementById('photoFolderProjectName').textContent = getProjectName();
+                overlay.classList.remove('photo-hidden');
+                document.body.style.overflow = 'hidden';
+                await renderPhotos();
+            });
+
+            function closeFolder() {
+                overlay.classList.add('photo-hidden');
+                document.body.style.overflow = '';
+            }
+            document.getElementById('photoFolderCloseBtn').addEventListener('click', closeFolder);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeFolder(); });
+
+            // Import
+            document.getElementById('photoImportBtn').addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', async (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                const projName = getProjectName();
+                for (const file of files) {
+                    if (!file.type.startsWith('image/')) continue;
+                    const dataUrl = await readFileAsDataUrl(file);
+                    const finalUrl = file.size > 2 * 1024 * 1024
+                        ? await compressImage(dataUrl, 1600, 0.8) : dataUrl;
+                    await savePhotoToDB(projName, finalUrl, file.name, new Date().toISOString());
+                }
+                fileInput.value = '';
+                await renderPhotos();
+            });
+
+            function readFileAsDataUrl(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function compressImage(dataUrl, maxDim, quality) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const c = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                            else { w = Math.round(w * maxDim / h); h = maxDim; }
+                        }
+                        c.width = w; c.height = h;
+                        c.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(c.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = dataUrl;
+                });
+            }
+
+            // Render grid
+            async function renderPhotos() {
+                const projName = getProjectName();
+                const photos = await getPhotosForProject(projName);
+                currentPhotos = photos;
+                countEl.textContent = photos.length + ' photo(s)';
+                grid.querySelectorAll('.photo-card').forEach(c => c.remove());
+                if (photos.length === 0) { emptyState.style.display = ''; return; }
+                emptyState.style.display = 'none';
+                photos.forEach((photo, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+                    const nameShort = photo.fileName.length > 20
+                        ? photo.fileName.slice(0, 14) + '...' + photo.fileName.slice(photo.fileName.lastIndexOf('.'))
+                        : photo.fileName;
+                    const dateStr = formatPhotoDate(photo.dateAdded);
+                    card.innerHTML =
+                        '<div class="photo-card-img-wrap"><img src="' + photo.dataUrl + '" alt="' + photo.fileName + '" loading="lazy"></div>' +
+                        '<div class="photo-card-info"><span class="photo-card-name" title="' + photo.fileName + '">' + nameShort + '</span>' +
+                        '<span class="photo-card-date">' + dateStr + '</span></div>' +
+                        '<button class="photo-card-rename" title="Renommer">✏️</button>' +
+                        '<button class="photo-card-delete" title="Supprimer">🗑️</button>';
+                    card.querySelector('.photo-card-img-wrap').addEventListener('click', () => openLightbox(idx));
+                    card.querySelector('.photo-card-rename').addEventListener('click', async (ev) => {
+                        ev.stopPropagation();
+                        const ext = photo.fileName.lastIndexOf('.') > -1 ? photo.fileName.slice(photo.fileName.lastIndexOf('.')) : '';
+                        const baseName = photo.fileName.lastIndexOf('.') > -1 ? photo.fileName.slice(0, photo.fileName.lastIndexOf('.')) : photo.fileName;
+                        const newName = prompt('Nouveau nom pour la photo :', baseName);
+                        if (newName !== null && newName.trim() !== '') {
+                            await renamePhotoInDB(photo.id, newName.trim() + ext);
+                            await renderPhotos();
+                        }
+                    });
+                    card.querySelector('.photo-card-delete').addEventListener('click', async (ev) => {
+                        ev.stopPropagation();
+                        if (confirm('Supprimer cette photo ?')) {
+                            await deletePhotoFromDB(photo.id);
+                            await renderPhotos();
+                        }
+                    });
+                    grid.appendChild(card);
+                });
+            }
+
+            function formatPhotoDate(iso) {
+                try {
+                    const d = new Date(iso);
+                    return d.toLocaleDateString('fr-CA') + ' ' + d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+                } catch (e) { return ''; }
+            }
+
+            // Lightbox
+            function openLightbox(idx) {
+                currentLightboxIdx = idx;
+                document.getElementById('photoLightbox').classList.remove('photo-hidden');
+                updateLightbox();
+            }
+            function closeLightbox() {
+                document.getElementById('photoLightbox').classList.add('photo-hidden');
+            }
+            function navigateLB(dir) {
+                currentLightboxIdx += dir;
+                if (currentLightboxIdx < 0) currentLightboxIdx = currentPhotos.length - 1;
+                if (currentLightboxIdx >= currentPhotos.length) currentLightboxIdx = 0;
+                updateLightbox();
+            }
+            function updateLightbox() {
+                const p = currentPhotos[currentLightboxIdx];
+                if (!p) return;
+                document.getElementById('photoLightboxImg').src = p.dataUrl;
+                document.getElementById('photoLightboxName').textContent = p.fileName;
+                document.getElementById('photoLightboxDate').textContent = formatPhotoDate(p.dateAdded);
+            }
+            document.getElementById('photoLightboxClose').addEventListener('click', closeLightbox);
+            document.getElementById('photoLightboxBackdrop').addEventListener('click', closeLightbox);
+            document.getElementById('photoLightboxPrev').addEventListener('click', () => navigateLB(-1));
+            document.getElementById('photoLightboxNext').addEventListener('click', () => navigateLB(1));
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (!document.getElementById('photoLightbox').classList.contains('photo-hidden')) closeLightbox();
+                    else if (!overlay.classList.contains('photo-hidden')) closeFolder();
+                }
+                if (!document.getElementById('photoLightbox').classList.contains('photo-hidden')) {
+                    if (e.key === 'ArrowLeft') navigateLB(-1);
+                    if (e.key === 'ArrowRight') navigateLB(1);
+                }
+            });
+        })();
+
+        // ============================================================
+        // ANOMALIE DE GAINE — IndexedDB + UI
+        // ============================================================
+        (function initAnomalyModule() {
+            const DB_NAME = 'RapportBouchonnageAnomalies';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'anomalies';
+
+            function openDB() {
+                return new Promise((resolve, reject) => {
+                    const req = indexedDB.open(DB_NAME, DB_VERSION);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        }
+                    };
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async function saveAnomaly(data) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    if (data.id) { store.put(data); } else { store.add(data); }
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function getAnomaliesForProject(projectName) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const req = tx.objectStore(STORE_NAME).getAll();
+                    req.onsuccess = () => resolve(req.result.filter(a => a.project === projectName));
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async function deleteAnomaly(id) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).delete(id);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function deleteAllAnomaliesForProject(projectName) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        req.result.filter(a => a.project === projectName).forEach(a => store.delete(a.id));
+                    };
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function getAnomalyById(id) {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const req = tx.objectStore(STORE_NAME).get(id);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            function getProjectName() {
+                const p = document.getElementById('projet').value.trim();
+                const r = document.getElementById('rue').value.trim();
+                if (p) return p;
+                if (r) return r;
+                return 'Projet sans nom';
+            }
+
+            // Labels
+            const anomLabels = {
+                fr: {
+                    title: 'Anomalies de gaine',
+                    addBtn: 'Nouvelle anomalie',
+                    count: ' anomalie(s)',
+                    empty: 'Aucune anomalie enregistrée',
+                    puits: 'Numéro de puits',
+                    chainage: 'Chaînage',
+                    chainageGaine: 'Chaînage gaine',
+                    serie: '# de série',
+                    date: 'Date',
+                    notes: 'Notes / Description',
+                    photoBtn: 'Ajouter / Remplacer photo',
+                    back: 'Retour',
+                    save: 'Sauvegarder',
+                    confirmDelete: 'Supprimer cette anomalie ?'
+                },
+                en: {
+                    title: 'Liner Anomalies',
+                    addBtn: 'New anomaly',
+                    count: ' anomaly(ies)',
+                    empty: 'No anomalies recorded',
+                    puits: 'Pit number',
+                    chainage: 'Chainage',
+                    chainageGaine: 'Liner chainage',
+                    serie: 'Serial #',
+                    date: 'Date',
+                    notes: 'Notes / Description',
+                    photoBtn: 'Add / Replace photo',
+                    back: 'Back',
+                    save: 'Save',
+                    confirmDelete: 'Delete this anomaly?'
+                }
+            };
+
+            function getLang() { return isFrench ? 'fr' : 'en'; }
+
+            function updateAnomalyLabels() {
+                const l = anomLabels[getLang()];
+                document.getElementById('anomAddLabel').textContent = l.addBtn;
+                document.getElementById('anomEmptyText').textContent = l.empty;
+                document.getElementById('anomLabelPuits').textContent = l.puits;
+                document.getElementById('anomLabelChainage').textContent = l.chainage;
+                document.getElementById('anomLabelChainageGaine').textContent = l.chainageGaine;
+                document.getElementById('anomLabelSerie').textContent = l.serie;
+                document.getElementById('anomLabelDate').textContent = l.date;
+                document.getElementById('anomLabelNotes').textContent = l.notes;
+                document.getElementById('anomPhotoImportLabel').textContent = l.photoBtn;
+                document.getElementById('anomBackLabel').textContent = l.back;
+                document.getElementById('anomSaveLabel').textContent = l.save;
+            }
+
+            // UI refs
+            const overlay = document.getElementById('anomOverlay');
+            const listView = document.getElementById('anomListView');
+            const detailView = document.getElementById('anomDetailView');
+            const anomList = document.getElementById('anomList');
+            const anomEmpty = document.getElementById('anomEmpty');
+            const anomCount = document.getElementById('anomCount');
+            const anomPhotoInput = document.getElementById('anomPhotoInput');
+            let currentEditId = null;
+            let currentPhotoDataUrl = null;
+
+            // Open / Close
+            document.getElementById('anomalyBtn').addEventListener('click', async () => {
+                document.getElementById('anomProjectName').textContent = getProjectName();
+                updateAnomalyLabels();
+                showListView();
+                overlay.classList.remove('photo-hidden');
+                document.body.style.overflow = 'hidden';
+                await renderList();
+            });
+
+            function closeAnomaly() {
+                overlay.classList.add('photo-hidden');
+                document.body.style.overflow = '';
+            }
+            document.getElementById('anomCloseBtn').addEventListener('click', closeAnomaly);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeAnomaly(); });
+
+            function showListView() {
+                listView.style.display = '';
+                detailView.classList.add('photo-hidden');
+                detailView.style.display = 'none';
+            }
+
+            function showDetailView() {
+                listView.style.display = 'none';
+                detailView.classList.remove('photo-hidden');
+                detailView.style.display = 'flex';
+            }
+
+            // Render list
+            async function renderList() {
+                const projName = getProjectName();
+                const items = await getAnomaliesForProject(projName);
+                const l = anomLabels[getLang()];
+                anomCount.textContent = items.length + l.count;
+                anomList.querySelectorAll('.anom-card').forEach(c => c.remove());
+                if (items.length === 0) { anomEmpty.style.display = ''; return; }
+                anomEmpty.style.display = 'none';
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'anom-card';
+                    const thumb = item.photo
+                        ? '<img class="anom-card-thumb" src="' + item.photo + '">'
+                        : '<div class="anom-card-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📷</div>';
+                    const line1 = (item.puits || '—') + ' | ' + (item.chainage || '—');
+                    const line2 = (item.date || '') + (item.serie ? ' — #' + item.serie : '');
+                    card.innerHTML = thumb +
+                        '<div class="anom-card-info"><div class="anom-card-line1">' + line1 + '</div><div class="anom-card-line2">' + line2 + '</div></div>' +
+                        '<button class="anom-card-delete" title="Supprimer">🗑️</button>';
+                    card.querySelector('.anom-card-info').addEventListener('click', () => openDetail(item.id));
+                    const thumbEl = card.querySelector('.anom-card-thumb');
+                    if (thumbEl) {
+                        thumbEl.addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            if (item.photo) {
+                                openAnomalyLightbox(item.photo);
+                            } else {
+                                openDetail(item.id);
+                            }
+                        });
+                    }
+                    card.querySelector('.anom-card-delete').addEventListener('click', async (ev) => {
+                        ev.stopPropagation();
+                        if (confirm(l.confirmDelete)) {
+                            await deleteAnomaly(item.id);
+                            await renderList();
+                        }
+                    });
+                    anomList.appendChild(card);
+                });
+            }
+
+            // Detail view
+            async function openDetail(id) {
+                updateAnomalyLabels();
+                currentEditId = id || null;
+                currentPhotoDataUrl = null;
+                const photoWrap = document.getElementById('anomPhotoWrap');
+                if (id) {
+                    const item = await getAnomalyById(id);
+                    if (!item) return;
+                    document.getElementById('anomPuits').value = item.puits || '';
+                    document.getElementById('anomChainage').value = item.chainage || '';
+                    document.getElementById('anomChainageGaine').value = item.chainageGaine || '';
+                    document.getElementById('anomSerie').value = item.serie || '';
+                    document.getElementById('anomDate').value = item.date || '';
+                    document.getElementById('anomNotes').value = item.notes || '';
+                    currentPhotoDataUrl = item.photo || null;
+                    if (item.photo) {
+                        setPhotoWrap(photoWrap, item.photo);
+                    } else {
+                        setPhotoWrapEmpty(photoWrap);
+                    }
+                } else {
+                    document.getElementById('anomPuits').value = '';
+                    document.getElementById('anomChainage').value = '';
+                    document.getElementById('anomChainageGaine').value = '';
+                    document.getElementById('anomSerie').value = '';
+                    document.getElementById('anomDate').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('anomNotes').value = '';
+                    setPhotoWrapEmpty(photoWrap);
+                }
+                showDetailView();
+            }
+
+            function setPhotoWrap(wrap, photoUrl) {
+                wrap.innerHTML = '<img src="' + photoUrl + '">';
+                wrap.classList.add('has-photo');
+                wrap.onclick = () => openAnomalyLightbox(photoUrl);
+            }
+
+            function setPhotoWrapEmpty(wrap) {
+                wrap.innerHTML = '<div class="anom-detail-photo-placeholder">📷</div>';
+                wrap.classList.remove('has-photo');
+                wrap.onclick = null;
+            }
+
+            // Add new
+            document.getElementById('anomAddBtn').addEventListener('click', () => openDetail(null));
+
+            // Back
+            document.getElementById('anomBackBtn').addEventListener('click', async () => {
+                showListView();
+                await renderList();
+            });
+
+            // Photo import
+            document.getElementById('anomPhotoImportBtn').addEventListener('click', () => anomPhotoInput.click());
+            anomPhotoInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file || !file.type.startsWith('image/')) return;
+                let dataUrl = await readFileAsDataUrl(file);
+                if (file.size > 2 * 1024 * 1024) dataUrl = await compressImage(dataUrl, 1600, 0.8);
+                currentPhotoDataUrl = dataUrl;
+                setPhotoWrap(document.getElementById('anomPhotoWrap'), dataUrl);
+                anomPhotoInput.value = '';
+            });
+
+            function readFileAsDataUrl(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function compressImage(dataUrl, maxDim, quality) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const c = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                            else { w = Math.round(w * maxDim / h); h = maxDim; }
+                        }
+                        c.width = w; c.height = h;
+                        c.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(c.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = dataUrl;
+                });
+            }
+
+            // Save detail
+            document.getElementById('anomSaveDetailBtn').addEventListener('click', async () => {
+                const projName = getProjectName();
+                const data = {
+                    project: projName,
+                    puits: document.getElementById('anomPuits').value,
+                    chainage: document.getElementById('anomChainage').value,
+                    chainageGaine: document.getElementById('anomChainageGaine').value,
+                    serie: document.getElementById('anomSerie').value,
+                    date: document.getElementById('anomDate').value,
+                    notes: document.getElementById('anomNotes').value,
+                    photo: currentPhotoDataUrl || ''
+                };
+                if (currentEditId) data.id = currentEditId;
+                await saveAnomaly(data);
+                showListView();
+                await renderList();
+            });
+
+            // Anomaly Lightbox
+            const anomLightbox = document.getElementById('anomLightbox');
+            const anomLightboxImg = document.getElementById('anomLightboxImg');
+
+            function openAnomalyLightbox(photoUrl) {
+                anomLightboxImg.src = photoUrl;
+                anomLightbox.classList.remove('photo-hidden');
+            }
+
+            function closeAnomalyLightbox() {
+                anomLightbox.classList.add('photo-hidden');
+                anomLightboxImg.src = '';
+            }
+
+            document.getElementById('anomLightboxClose').addEventListener('click', closeAnomalyLightbox);
+            anomLightbox.addEventListener('click', (e) => { if (e.target === anomLightbox) closeAnomalyLightbox(); });
+
+            // Keyboard
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (!anomLightbox.classList.contains('photo-hidden')) { closeAnomalyLightbox(); return; }
+                    if (!overlay.classList.contains('photo-hidden')) closeAnomaly();
+                }
+            });
+
+            // Lang update hook
+            window.updateAnomalyLabels = updateAnomalyLabels;
+
+            // Expose for save/load/reset
+            window.AnomalyModule = { deleteAllAnomaliesForProject, getAnomaliesForProject, saveAnomaly, getProjectName };
+        })();
 
         // Enregistrement du Service Worker avec scope explicite (ESSENTIEL pour subpath GitHub Pages)
         if ('serviceWorker' in navigator) {
