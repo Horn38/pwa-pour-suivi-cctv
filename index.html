@@ -1758,6 +1758,61 @@
                 };
                 if (currentEditId) data.id = currentEditId;
                 await saveAnomaly(data);
+
+                // Email notification with photo via Share API
+                var l = anomLabels[getLang()];
+                var askMsg = getLang() === 'fr' ? 'Envoyer un courriel de notification pour cette anomalie ?' : 'Send a notification email for this anomaly?';
+                if (confirm(askMsg)) {
+                    var proj = document.getElementById('projet').value || 'N/A';
+                    var ville = document.getElementById('ville').value || '';
+                    var rue = document.getElementById('rue').value || '';
+                    var titre = 'Anomalie de gaine - ' + proj + ' - ' + (rue || ville || 'N/A');
+                    var body = 'Destinataire: jdonovan@vortexwater.ca\n\n';
+                    body += l.puits + ': ' + (data.puits || 'N/A') + '\n';
+                    body += l.chainage + ': ' + (data.chainage || 'N/A') + '\n';
+                    body += l.chainageGaine + ': ' + (data.chainageGaine || 'N/A') + '\n';
+                    body += l.serie + ': ' + (data.serie || 'N/A') + '\n';
+                    body += l.date + ': ' + (data.date || 'N/A') + '\n';
+                    body += l.notes + ': ' + (data.notes || 'N/A') + '\n\n';
+                    body += 'Projet: ' + proj + '\n';
+                    body += 'Ville: ' + ville + '\n';
+                    body += 'Rue: ' + rue + '\n';
+
+                    var shareData = { title: titre, text: body };
+                    var files = [];
+
+                    // Convert photo base64 to File if available
+                    if (data.photo && data.photo.startsWith('data:image')) {
+                        try {
+                            var arr = data.photo.split(',');
+                            var mime = arr[0].match(/:(.*?);/)[1];
+                            var ext = mime.split('/')[1] || 'jpg';
+                            var bstr = atob(arr[1]);
+                            var u8arr = new Uint8Array(bstr.length);
+                            for (var i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+                            var file = new File([u8arr], 'anomalie_' + (data.puits || 'photo') + '.' + ext, { type: mime });
+                            files.push(file);
+                        } catch (e) { console.error('Photo conversion error:', e); }
+                    }
+
+                    // Try Share API with files
+                    if (files.length > 0 && navigator.canShare && navigator.canShare({ files: files })) {
+                        shareData.files = files;
+                    }
+
+                    if (navigator.share) {
+                        try {
+                            await navigator.share(shareData);
+                        } catch (e) {
+                            if (e.name !== 'AbortError') console.error('Share error:', e);
+                        }
+                    } else {
+                        // Fallback mailto sans photo
+                        var subject = encodeURIComponent(titre);
+                        window.location.href = 'mailto:jdonovan@vortexwater.ca?subject=' + subject + '&body=' + encodeURIComponent(body);
+                    }
+                }
+
                 showListView();
                 await renderList();
             });
