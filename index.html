@@ -228,6 +228,15 @@
             margin-top: 30px;
         }
         .hidden { display: none; }
+        /* ======================== TOAST ======================== */
+        .app-toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75); color: #fff;
+            padding: 12px 24px; border-radius: 24px;
+            font-size: 15px; z-index: 99999;
+            pointer-events: none; transition: opacity 0.5s;
+        }
         /* ======================== DOSSIER PHOTOS ======================== */
         #photoFolderBtn { background-color: #3F51B5 !important; }
         #photoFolderBtn:hover { background-color: #303F9F !important; }
@@ -754,6 +763,14 @@ body:not(.dark-mode) .project-item-name { color: #333; }
         let isFrench = true;
         let currentHighlight = '';
 
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'app-toast';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 2500);
+        }
+
         function autoSave() {
             const data = getCurrentData();
             localStorage.setItem('rapportBouchonnageData', JSON.stringify(data));
@@ -862,8 +879,7 @@ body:not(.dark-mode) .project-item-name { color: #333; }
                 parts.push(puits);
             }
             defaultName += parts.length > 0 ? parts.join('_') : 'rapport_bouchonnage';
-            const filename = prompt(isFrench ? "Nom du fichier (sans extension) :" : "File name (without extension):", defaultName);
-            if (!filename) return;
+            const filename = defaultName;
 
             const data = getCurrentData();
 
@@ -885,7 +901,7 @@ const jsonStr = JSON.stringify(data, null, 2);
 
             if (window.Android) {
                 const ok = window.Android.saveProject(jsonStr, finalName);
-                alert(ok
+                showToast(ok
                     ? (isFrench ? 'Projet sauvegardé !' : 'Project saved!')
                     : (isFrench ? 'Erreur lors de la sauvegarde.' : 'Save error.'));
             } else {
@@ -896,7 +912,7 @@ const jsonStr = JSON.stringify(data, null, 2);
                 a.download = finalName;
                 a.click();
                 URL.revokeObjectURL(url);
-                alert(isFrench ? 'Projet sauvegardé !' : 'Project saved!');
+                showToast(isFrench ? 'Projet sauvegardé !' : 'Project saved!');
             }
         };
 
@@ -935,6 +951,7 @@ const jsonStr = JSON.stringify(data, null, 2);
                         if (json) {
                             closeProjectsOverlay();
                             loadFromData(JSON.parse(json));
+                            showToast(isFrench ? 'Projet chargé !' : 'Project loaded!');
                         }
                     };
 
@@ -1026,7 +1043,7 @@ document.getElementById('projectsOverlay').addEventListener('click', (e) => {
                         }
                     }
 
-                    alert(isFrench ? 'Projet chargé !' : 'Project loaded!');
+                    showToast(isFrench ? 'Projet chargé !' : 'Project loaded!');
                 } catch (err) {
                     alert(isFrench ? 'Fichier invalide.' : 'Invalid file.');
                 }
