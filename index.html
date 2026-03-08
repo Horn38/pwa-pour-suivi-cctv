@@ -1014,8 +1014,8 @@ document.getElementById('projectsOverlay').addEventListener('click', (e) => {
 });
 
 document.getElementById('projectImportBtn').addEventListener('click', () => {
-    closeProjectsOverlay();
     document.getElementById('fileInput').click();
+    setTimeout(() => closeProjectsOverlay(), 300);
 });
 
         document.getElementById('fileInput').onchange = (e) => {
