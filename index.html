@@ -629,9 +629,9 @@ body:not(.dark-mode) .project-item-name { color: #333; }
             <button class="photo-folder-close" id="projectsOverlayCloseBtn" title="Fermer">✕</button>
         </div>
         <div class="photo-folder-toolbar">
-            <label for="fileInput" class="photo-import-btn" id="projectImportBtn">
+            <button class="photo-import-btn" id="projectImportBtn">
                 <span>📥</span> Importer un projet
-            </label>
+            </button>
         </div>
         <div style="flex:1; overflow-y:auto; padding:16px;">
             <div id="projectsList"></div>
@@ -642,7 +642,7 @@ body:not(.dark-mode) .project-item-name { color: #333; }
         </div>
     </div>
 </div>
-    <input type="file" id="fileInput" accept=".json" style="position:fixed;top:-9999px;left:-9999px;opacity:0;width:1px;height:1px;">
+    <input type="file" id="fileInput" accept=".json" class="hidden">
     <input type="file" id="photoFileInput" accept="image/*" multiple class="hidden">
     <input type="file" id="anomPhotoInput" accept="image/*" class="hidden">
 
@@ -1012,6 +1012,45 @@ document.getElementById('projectsOverlayCloseBtn').addEventListener('click', clo
 document.getElementById('projectsOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('projectsOverlay')) closeProjectsOverlay();
 });
+
+document.getElementById('projectImportBtn').addEventListener('click', () => {
+    if (window.Android) {
+        closeProjectsOverlay();
+        window.Android.pickFile();
+    } else {
+        closeProjectsOverlay();
+        document.getElementById('fileInput').click();
+    }
+});
+
+// Callback appelé par Kotlin après sélection d'un fichier
+window.onAndroidFilePicked = async (jsonStr, fileName) => {
+    try {
+        const data = JSON.parse(jsonStr);
+        if (data.appId && data.appId !== 'rapport-cctv') {
+            showToast(isFrench ? 'Mauvais type de fichier !' : 'Wrong file type!');
+            return;
+        }
+        loadFromData(data);
+        if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
+            const projName = window.PhotoModule.getProjectName();
+            await window.PhotoModule.deleteAllPhotosForProject(projName);
+            for (const p of data.photos) {
+                await window.PhotoModule.savePhotoToDB(projName, p.dataUrl, p.fileName, p.dateAdded);
+            }
+        }
+        if (window.AnomalyModule && Array.isArray(data.anomalies) && data.anomalies.length > 0) {
+            const projName = window.AnomalyModule.getProjectName();
+            await window.AnomalyModule.deleteAllAnomaliesForProject(projName);
+            for (const a of data.anomalies) {
+                await window.AnomalyModule.saveAnomaly({ project: projName, ...a });
+            }
+        }
+        showToast(isFrench ? 'Projet importé !' : 'Project imported!');
+    } catch (err) {
+        showToast(isFrench ? 'Fichier invalide.' : 'Invalid file.');
+    }
+};
 
         document.getElementById('fileInput').onchange = (e) => {
             const file = e.target.files[0];
