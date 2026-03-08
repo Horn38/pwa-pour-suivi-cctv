@@ -431,6 +431,49 @@
         #exportPdfBtn { background-color: #4CAF50 !important; }
         #exportPdfBtn:hover { background-color: #388E3C !important; }
 
+       /* ======================== GESTION PROJETS ANDROID ======================== */
+.project-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: #1e1e2e;
+    border: 1px solid #444;
+    border-radius: 10px;
+    gap: 10px;
+}
+body:not(.dark-mode) .project-item { background: #fff; border-color: #ddd; }
+.project-item-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #cdd6f4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+body:not(.dark-mode) .project-item-name { color: #333; }
+.project-item-btns {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.project-item-btns button {
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    margin: 0;
+}
+.btn-load  { background: #009688; color: white; }
+.btn-load:hover  { background: #00796b; }
+.btn-share { background: #3F51B5; color: white; }
+.btn-share:hover { background: #303F9F; }
+.btn-del   { background: #f44336; color: white; }
+.btn-del:hover   { background: #d32f2f; }
         @media print {
             @page { size: landscape; }
             body, .dark-mode { background: #fff !important; color: #222 !important; }
@@ -565,6 +608,25 @@
         <textarea id="notes"></textarea>
     </div>
 
+    <!-- Overlay Gestion Projets Android -->
+<div id="projectsOverlay" class="photo-overlay photo-hidden">
+    <div class="photo-folder-window">
+        <div class="photo-folder-titlebar">
+            <div class="photo-folder-titlebar-left">
+                <span class="photo-folder-icon">📂</span>
+                <span class="photo-folder-title">Projets sauvegardés</span>
+            </div>
+            <button class="photo-folder-close" id="projectsOverlayCloseBtn" title="Fermer">✕</button>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px;">
+            <div id="projectsList"></div>
+            <div id="projectsEmpty" class="photo-empty-state photo-hidden">
+                <div class="photo-empty-icon">📁</div>
+                <p>Aucun projet sauvegardé</p>
+            </div>
+        </div>
+    </div>
+</div>
     <input type="file" id="fileInput" accept=".json" class="hidden">
     <input type="file" id="photoFileInput" accept="image/*" multiple class="hidden">
     <input type="file" id="anomPhotoInput" accept="image/*" class="hidden">
@@ -818,18 +880,114 @@
                 const anomalies = await window.AnomalyModule.getAnomaliesForProject(projName);
                 data.anomalies = anomalies.map(a => ({ puits: a.puits, chainage: a.chainage, chainageGaine: a.chainageGaine, serie: a.serie, date: a.date, notes: a.notes, photo: a.photo }));
             }
+const jsonStr = JSON.stringify(data, null, 2);
+            const finalName = filename.trim() + '.json';
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename.trim() + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            alert(isFrench ? "Projet sauvegardé !" : "Project saved!");
+            if (window.Android) {
+                const ok = window.Android.saveProject(jsonStr, finalName);
+                alert(ok
+                    ? (isFrench ? 'Projet sauvegardé !' : 'Project saved!')
+                    : (isFrench ? 'Erreur lors de la sauvegarde.' : 'Save error.'));
+            } else {
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = finalName;
+                a.click();
+                URL.revokeObjectURL(url);
+                alert(isFrench ? 'Projet sauvegardé !' : 'Project saved!');
+            }
         };
 
-        document.getElementById('loadBtn').onclick = () => document.getElementById('fileInput').click();
+        document.getElementById('loadBtn').onclick = () => {
+    if (window.Android) {
+        const list = window.Android.listProjects();
+        const projectsList = document.getElementById('projectsList');
+        const projectsEmpty = document.getElementById('projectsEmpty');
+        projectsList.innerHTML = '';
+
+        if (!list || list.trim() === '') {
+            projectsEmpty.classList.remove('photo-hidden');
+        } else {
+            const projects = list.split('|||').filter(p => p.length > 0);
+            if (projects.length === 0) {
+                projectsEmpty.classList.remove('photo-hidden');
+            } else {
+                projectsEmpty.classList.add('photo-hidden');
+                projects.forEach(fname => {
+                    const item = document.createElement('div');
+                    item.className = 'project-item';
+
+                    const nameEl = document.createElement('div');
+                    nameEl.className = 'project-item-name';
+                    nameEl.textContent = fname.replace('.json', '');
+                    nameEl.title = fname;
+
+                    const btns = document.createElement('div');
+                    btns.className = 'project-item-btns';
+
+                    const btnLoad = document.createElement('button');
+                    btnLoad.className = 'btn-load';
+                    btnLoad.textContent = '📂 Charger';
+                    btnLoad.onclick = () => {
+                        const json = window.Android.loadProject(fname);
+                        if (json) {
+                            closeProjectsOverlay();
+                            loadFromData(JSON.parse(json));
+                        }
+                    };
+
+                    const btnShare = document.createElement('button');
+                    btnShare.className = 'btn-share';
+                    btnShare.textContent = '📤 Partager';
+                    btnShare.onclick = () => {
+                        window.Android.shareProject(fname);
+                    };
+
+                    const btnDel = document.createElement('button');
+                    btnDel.className = 'btn-del';
+                    btnDel.textContent = '🗑️';
+                    btnDel.onclick = () => {
+                        const msg = isFrench
+                            ? 'Supprimer « ' + fname.replace('.json','') + ' » ?'
+                            : 'Delete "' + fname.replace('.json','') + '"?';
+                        if (confirm(msg)) {
+                            window.Android.deleteProject(fname);
+                            item.remove();
+                            if (projectsList.children.length === 0) {
+                                projectsEmpty.classList.remove('photo-hidden');
+                            }
+                        }
+                    };
+
+                    btns.appendChild(btnLoad);
+                    btns.appendChild(btnShare);
+                    btns.appendChild(btnDel);
+                    item.appendChild(nameEl);
+                    item.appendChild(btns);
+                    projectsList.appendChild(item);
+                });
+            }
+        }
+
+        document.getElementById('projectsOverlay').classList.remove('photo-hidden');
+        document.body.style.overflow = 'hidden';
+
+    } else {
+        document.getElementById('fileInput').click();
+    }
+};
+
+function closeProjectsOverlay() {
+    document.getElementById('projectsOverlay').classList.add('photo-hidden');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('projectsOverlayCloseBtn').addEventListener('click', closeProjectsOverlay);
+document.getElementById('projectsOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('projectsOverlay')) closeProjectsOverlay();
+});
 
         document.getElementById('fileInput').onchange = (e) => {
             const file = e.target.files[0];
