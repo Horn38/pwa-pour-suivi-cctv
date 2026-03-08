@@ -628,6 +628,11 @@ body:not(.dark-mode) .project-item-name { color: #333; }
             </div>
             <button class="photo-folder-close" id="projectsOverlayCloseBtn" title="Fermer">✕</button>
         </div>
+        <div class="photo-folder-toolbar">
+            <button class="photo-import-btn" id="projectImportBtn">
+                <span>📥</span> Importer un projet
+            </button>
+        </div>
         <div style="flex:1; overflow-y:auto; padding:16px;">
             <div id="projectsList"></div>
             <div id="projectsEmpty" class="photo-empty-state photo-hidden">
@@ -1008,6 +1013,11 @@ document.getElementById('projectsOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('projectsOverlay')) closeProjectsOverlay();
 });
 
+document.getElementById('projectImportBtn').addEventListener('click', () => {
+    closeProjectsOverlay();
+    document.getElementById('fileInput').click();
+});
+
         document.getElementById('fileInput').onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1025,6 +1035,12 @@ document.getElementById('projectsOverlay').addEventListener('click', (e) => {
                     }
 
                     loadFromData(data);
+
+                    // Sur Android, sauvegarder aussi dans Documents/CCTV automatiquement
+                    if (window.Android) {
+                        const importedName = file.name.endsWith('.json') ? file.name : file.name + '.json';
+                        window.Android.saveProject(ev.target.result, importedName);
+                    }
 
                     // Réimporter les photos sauvegardées dans le JSON
                     if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
