@@ -629,9 +629,9 @@ body:not(.dark-mode) .project-item-name { color: #333; }
             <button class="photo-folder-close" id="projectsOverlayCloseBtn" title="Fermer">✕</button>
         </div>
         <div class="photo-folder-toolbar">
-            <button class="photo-import-btn" id="projectImportBtn">
+            <label for="fileInput" class="photo-import-btn" id="projectImportBtn">
                 <span>📥</span> Importer un projet
-            </button>
+            </label>
         </div>
         <div style="flex:1; overflow-y:auto; padding:16px;">
             <div id="projectsList"></div>
@@ -642,7 +642,7 @@ body:not(.dark-mode) .project-item-name { color: #333; }
         </div>
     </div>
 </div>
-    <input type="file" id="fileInput" accept=".json" class="hidden">
+    <input type="file" id="fileInput" accept=".json" style="position:fixed;top:-9999px;left:-9999px;opacity:0;width:1px;height:1px;">
     <input type="file" id="photoFileInput" accept="image/*" multiple class="hidden">
     <input type="file" id="anomPhotoInput" accept="image/*" class="hidden">
 
@@ -1011,11 +1011,6 @@ function closeProjectsOverlay() {
 document.getElementById('projectsOverlayCloseBtn').addEventListener('click', closeProjectsOverlay);
 document.getElementById('projectsOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('projectsOverlay')) closeProjectsOverlay();
-});
-
-document.getElementById('projectImportBtn').addEventListener('click', () => {
-    document.getElementById('fileInput').click();
-    setTimeout(() => closeProjectsOverlay(), 300);
 });
 
         document.getElementById('fileInput').onchange = (e) => {
