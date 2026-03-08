@@ -922,6 +922,7 @@ const jsonStr = JSON.stringify(data, null, 2);
         const projectsList = document.getElementById('projectsList');
         const projectsEmpty = document.getElementById('projectsEmpty');
         projectsList.innerHTML = '';
+        projectsEmpty.classList.add('photo-hidden');
 
         if (!list || list.trim() === '') {
             projectsEmpty.classList.remove('photo-hidden');
