@@ -1524,8 +1524,22 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             document.getElementById('photoFolderCloseBtn').addEventListener('click', closeFolder);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) closeFolder(); });
 
-            // Import
-            document.getElementById('photoImportBtn').addEventListener('click', () => fileInput.click());
+            // Import photos
+            document.getElementById('photoImportBtn').addEventListener('click', () => {
+                if (window.Android) {
+                    window.Android.pickPhoto();
+                } else {
+                    fileInput.click();
+                }
+            });
+
+            // Callback Android après sélection photo (dossier photos)
+            window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
+                const projName = getProjectName();
+                await savePhotoToDB(projName, dataUrl, fileName, new Date().toISOString());
+                await renderPhotos();
+            };
+
             fileInput.addEventListener('change', async (e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
@@ -1932,8 +1946,21 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
                 await renderList();
             });
 
-            // Photo import
-            document.getElementById('anomPhotoImportBtn').addEventListener('click', () => anomPhotoInput.click());
+            // Photo import anomalie
+            document.getElementById('anomPhotoImportBtn').addEventListener('click', () => {
+                if (window.Android) {
+                    window.Android.pickPhoto();
+                    // Callback Android pour anomalie
+                    window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
+                        currentPhotoDataUrl = dataUrl;
+                        setPhotoWrap(document.getElementById('anomPhotoWrap'), dataUrl);
+                        // Réenregistrer le callback dossier photos pour la prochaine fois
+                        window.onAndroidPhotoPicked = window._photoFolderCallback;
+                    };
+                } else {
+                    anomPhotoInput.click();
+                }
+            });
             anomPhotoInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file || !file.type.startsWith('image/')) return;
