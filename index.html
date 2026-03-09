@@ -959,7 +959,6 @@ const jsonStr = JSON.stringify(data, null, 2);
                             closeProjectsOverlay();
                             const data = JSON.parse(json);
                             loadFromData(data);
-                            // Réimporter photos dans IndexedDB
                             if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
                                 const projName = window.PhotoModule.getProjectName();
                                 await window.PhotoModule.deleteAllPhotosForProject(projName);
@@ -967,7 +966,6 @@ const jsonStr = JSON.stringify(data, null, 2);
                                     await window.PhotoModule.savePhotoToDB(projName, p.dataUrl, p.fileName, p.dateAdded);
                                 }
                             }
-                            // Réimporter anomalies dans IndexedDB
                             if (window.AnomalyModule && Array.isArray(data.anomalies) && data.anomalies.length > 0) {
                                 const projName = window.AnomalyModule.getProjectName();
                                 await window.AnomalyModule.deleteAllAnomaliesForProject(projName);
@@ -1544,16 +1542,16 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             // Import photos
             document.getElementById('photoImportBtn').addEventListener('click', () => {
                 if (window.Android) {
-                    window._photoContext = 'folder';
+                    window._androidPhotoTarget = 'folder';
                     window.Android.pickPhoto();
                 } else {
                     fileInput.click();
                 }
             });
 
-            // Callback Android centralisé — dispatche selon le contexte
+            // Callback Android centralisé pour toutes les photos
             window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
-                if (window._photoContext === 'anomaly') {
+                if (window._androidPhotoTarget === 'anomaly') {
                     currentPhotoDataUrl = dataUrl;
                     setPhotoWrap(document.getElementById('anomPhotoWrap'), dataUrl);
                 } else {
@@ -1561,9 +1559,10 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
                     await savePhotoToDB(projName, dataUrl, fileName, new Date().toISOString());
                     await renderPhotos();
                 }
-                window._photoContext = 'folder';
+                window._androidPhotoTarget = 'folder';
             };
 
+            // Navigateur — fileInput classique
             fileInput.addEventListener('change', async (e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
@@ -1973,12 +1972,13 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             // Photo import anomalie
             document.getElementById('anomPhotoImportBtn').addEventListener('click', () => {
                 if (window.Android) {
-                    window._photoContext = 'anomaly';
+                    window._androidPhotoTarget = 'anomaly';
                     window.Android.pickPhoto();
                 } else {
                     anomPhotoInput.click();
                 }
             });
+            // Navigateur — anomPhotoInput classique
             anomPhotoInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file || !file.type.startsWith('image/')) return;
