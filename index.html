@@ -953,11 +953,28 @@ const jsonStr = JSON.stringify(data, null, 2);
                     const btnLoad = document.createElement('button');
                     btnLoad.className = 'btn-load';
                     btnLoad.textContent = '📂 Charger';
-                    btnLoad.onclick = () => {
+                    btnLoad.onclick = async () => {
                         const json = window.Android.loadProject(fname);
                         if (json) {
                             closeProjectsOverlay();
-                            loadFromData(JSON.parse(json));
+                            const data = JSON.parse(json);
+                            loadFromData(data);
+                            // Réimporter photos dans IndexedDB
+                            if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
+                                const projName = window.PhotoModule.getProjectName();
+                                await window.PhotoModule.deleteAllPhotosForProject(projName);
+                                for (const p of data.photos) {
+                                    await window.PhotoModule.savePhotoToDB(projName, p.dataUrl, p.fileName, p.dateAdded);
+                                }
+                            }
+                            // Réimporter anomalies dans IndexedDB
+                            if (window.AnomalyModule && Array.isArray(data.anomalies) && data.anomalies.length > 0) {
+                                const projName = window.AnomalyModule.getProjectName();
+                                await window.AnomalyModule.deleteAllAnomaliesForProject(projName);
+                                for (const a of data.anomalies) {
+                                    await window.AnomalyModule.saveAnomaly({ project: projName, ...a });
+                                }
+                            }
                             showToast(isFrench ? 'Projet chargé !' : 'Project loaded!');
                         }
                     };
@@ -1527,17 +1544,24 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             // Import photos
             document.getElementById('photoImportBtn').addEventListener('click', () => {
                 if (window.Android) {
+                    window._photoContext = 'folder';
                     window.Android.pickPhoto();
                 } else {
                     fileInput.click();
                 }
             });
 
-            // Callback Android après sélection photo (dossier photos)
+            // Callback Android centralisé — dispatche selon le contexte
             window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
-                const projName = getProjectName();
-                await savePhotoToDB(projName, dataUrl, fileName, new Date().toISOString());
-                await renderPhotos();
+                if (window._photoContext === 'anomaly') {
+                    currentPhotoDataUrl = dataUrl;
+                    setPhotoWrap(document.getElementById('anomPhotoWrap'), dataUrl);
+                } else {
+                    const projName = getProjectName();
+                    await savePhotoToDB(projName, dataUrl, fileName, new Date().toISOString());
+                    await renderPhotos();
+                }
+                window._photoContext = 'folder';
             };
 
             fileInput.addEventListener('change', async (e) => {
@@ -1949,14 +1973,8 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             // Photo import anomalie
             document.getElementById('anomPhotoImportBtn').addEventListener('click', () => {
                 if (window.Android) {
+                    window._photoContext = 'anomaly';
                     window.Android.pickPhoto();
-                    // Callback Android pour anomalie
-                    window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
-                        currentPhotoDataUrl = dataUrl;
-                        setPhotoWrap(document.getElementById('anomPhotoWrap'), dataUrl);
-                        // Réenregistrer le callback dossier photos pour la prochaine fois
-                        window.onAndroidPhotoPicked = window._photoFolderCallback;
-                    };
                 } else {
                     anomPhotoInput.click();
                 }
