@@ -959,6 +959,8 @@ const jsonStr = JSON.stringify(data, null, 2);
                             closeProjectsOverlay();
                             const data = JSON.parse(json);
                             loadFromData(data);
+                            // Attendre que loadFromData remplisse les champs (projet/rue) avant getProjectName()
+                            await new Promise(r => setTimeout(r, 100));
                             if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
                                 const projName = window.PhotoModule.getProjectName();
                                 await window.PhotoModule.deleteAllPhotosForProject(projName);
@@ -1047,6 +1049,8 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             return;
         }
         loadFromData(data);
+        // Attendre que loadFromData remplisse les champs avant getProjectName()
+        await new Promise(r => setTimeout(r, 100));
         if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
             const projName = window.PhotoModule.getProjectName();
             await window.PhotoModule.deleteAllPhotosForProject(projName);
@@ -1293,7 +1297,7 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             autoSave();
         }
 
-        function reinitialiserTout() {
+        async function reinitialiserTout() {
             const confirmMsg = isFrench ? 'Êtes-vous sûr de vouloir tout réinitialiser ?' : 'Are you sure you want to reset everything?';
 
             if (!confirm(confirmMsg)) {
@@ -1303,13 +1307,13 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             // Effacer les photos du projet en cours avant de vider les champs
             if (window.PhotoModule) {
                 const projName = window.PhotoModule.getProjectName();
-                window.PhotoModule.deleteAllPhotosForProject(projName);
+                await window.PhotoModule.deleteAllPhotosForProject(projName);
             }
 
             // Effacer les anomalies du projet en cours
             if (window.AnomalyModule) {
                 const projName = window.AnomalyModule.getProjectName();
-                window.AnomalyModule.deleteAllAnomaliesForProject(projName);
+                await window.AnomalyModule.deleteAllAnomaliesForProject(projName);
             }
 
             document.getElementById('projet').value = '';
@@ -1552,8 +1556,15 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             // Callback Android centralisé pour toutes les photos
             window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
                 if (window._androidPhotoTarget === 'anomaly') {
-                    currentPhotoDataUrl = dataUrl;
-                    setPhotoWrap(document.getElementById('anomPhotoWrap'), dataUrl);
+                    // Passer la photo au scope anomalie via window
+                    window._androidPhotoDataUrl = dataUrl;
+                    const wrap = document.getElementById('anomPhotoWrap');
+                    if (wrap && typeof setPhotoWrap === 'function') {
+                        setPhotoWrap(wrap, dataUrl);
+                    } else {
+                        // setPhotoWrap pas encore accessible, déclencher via événement
+                        document.dispatchEvent(new CustomEvent('androidPhotoForAnomaly', { detail: { dataUrl, fileName } }));
+                    }
                 } else {
                     const projName = getProjectName();
                     await savePhotoToDB(projName, dataUrl, fileName, new Date().toISOString());
@@ -1973,7 +1984,19 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             document.getElementById('anomPhotoImportBtn').addEventListener('click', () => {
                 if (window.Android) {
                     window._androidPhotoTarget = 'anomaly';
+                    window._androidPhotoDataUrl = null;
                     window.Android.pickPhoto();
+                    // Polling pour récupérer la photo depuis window._androidPhotoDataUrl
+                    const poll = setInterval(() => {
+                        if (window._androidPhotoDataUrl) {
+                            currentPhotoDataUrl = window._androidPhotoDataUrl;
+                            setPhotoWrap(document.getElementById('anomPhotoWrap'), currentPhotoDataUrl);
+                            window._androidPhotoDataUrl = null;
+                            clearInterval(poll);
+                        }
+                    }, 300);
+                    // Arrêter le polling après 30 secondes max
+                    setTimeout(() => clearInterval(poll), 30000);
                 } else {
                     anomPhotoInput.click();
                 }
