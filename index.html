@@ -967,6 +967,8 @@ const jsonStr = JSON.stringify(data, null, 2);
                                 for (const p of data.photos) {
                                     await window.PhotoModule.savePhotoToDB(projName, p.dataUrl, p.fileName, p.dateAdded);
                                 }
+                                // Rafraîchir l'affichage du dossier photos
+                                if (typeof renderPhotos === 'function') await renderPhotos();
                             }
                             if (window.AnomalyModule && Array.isArray(data.anomalies) && data.anomalies.length > 0) {
                                 const projName = window.AnomalyModule.getProjectName();
@@ -1308,6 +1310,8 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             if (window.PhotoModule) {
                 const projName = window.PhotoModule.getProjectName();
                 await window.PhotoModule.deleteAllPhotosForProject(projName);
+                // Rafraîchir l'affichage si le dossier photos est ouvert
+                if (typeof renderPhotos === 'function') await renderPhotos();
             }
 
             // Effacer les anomalies du projet en cours
